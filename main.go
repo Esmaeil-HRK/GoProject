@@ -1,39 +1,12 @@
 package main
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"net/http"
-	"time"
 )
-
-var jwtKey = []byte("your_secret_key") // Use a secret key for your JWT signature. Keep this key secure.
-
-type Claims struct {
-	UserID uint
-	Email  string
-	jwt.StandardClaims
-}
-
-// GenerateJWT generates a new JWT token for a given user.
-func GenerateJWT(email string, userID uint) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		UserID: userID,
-		Email:  email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-
-	return tokenString, err
-}
 
 type User struct {
 	gorm.Model
