@@ -107,7 +107,7 @@ func main() {
 			return
 		}
 
-		// Validate the newUser struct
+		// Validate the new User struct
 		if validationErr := validate.Struct(newUser); validationErr != nil {
 			var errMsg []string
 			for _, err := range validationErr.(validator.ValidationErrors) {
