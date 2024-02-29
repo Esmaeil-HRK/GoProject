@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -20,6 +21,7 @@ type User struct {
 	Picture  string `json:"picture" validate:"required,endswith=jpg|endswith=png"`
 	Password string `json:"password" validate:"required"`
 	IsAdmin  bool   `json:"isAdmin"`
+	Tags     string `json:"tags" gorm:"default:new"`
 }
 
 // Claims JWT Claims struct
@@ -95,6 +97,47 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func updateUser(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	isAdmin, _ := c.Get("isAdmin")
+	targetUserID := c.Param("id") // ID of the user to update
+
+	// Parse and convert the target user ID from string to uint
+	var targetUserIDUint uint
+	fmt.Sscanf(targetUserID, "%d", &targetUserIDUint)
+
+	// Authorization check: user can only update their own data unless they're an admin
+	if !isAdmin.(bool) && userID.(uint) != targetUserIDUint {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions to update this user's data"})
+		return
+	}
+
+	var updatedUserDetails User
+	if err := c.BindJSON(&updatedUserDetails); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Handle password hashing if the password field is not empty
+	if updatedUserDetails.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(updatedUserDetails.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
+			return
+		}
+		updatedUserDetails.Password = string(hashedPassword)
+	}
+
+	// Update user details in the database
+	result := db.Model(&User{}).Where("id = ?", targetUserIDUint).Updates(updatedUserDetails)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
 }
 
 func main() {
@@ -195,6 +238,7 @@ func main() {
 		db.First(&user, userID)
 		c.JSON(http.StatusOK, user)
 	})
-
+	// Add your new route here
+	r.PUT("/user/:id", AuthMiddleware(), updateUser)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
