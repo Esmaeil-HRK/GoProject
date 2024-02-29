@@ -9,7 +9,7 @@ This Go project demonstrates a simple authentication service using JWT (JSON Web
 - JWT-based authentication
 - Middleware for route protection based on user roles (Admin and User)
 - Admin can view and modify all users
-- Users can view and modify their own data
+- Users can view and modify their own data, including custom tags like "new", "premium", etc.
 
 ## Prerequisites
 
@@ -70,4 +70,6 @@ The server will start listening for requests on `localhost:8080`.
   - Body: `{"email": "user@example.com", "password": "password"}`
 - **GET /user/profile**: Retrieve the profile of the currently authenticated user. Requires JWT.
 - **GET /admin/users**: Retrieve a list of all users. Requires Admin JWT.
+- PUT /user/{id}: Update user information (authenticated users can update their own information; admins can update any user's information).
+Body example: {"name": "Updated Name", "tags": "premium"}
 
