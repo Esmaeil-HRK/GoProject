@@ -39,8 +39,8 @@ var (
 
 func init() {
 	var err error
-	// Database initialization
-	db, err = gorm.Open(postgres.Open("host=localhost user=postgres password=esm2000esm dbname=postgres port=5432 sslmode=disable"), &gorm.Config{})
+	// Database initialization TODO: ADD Username and password
+	db, err = gorm.Open(postgres.Open("host=localhost user=YOUR_USERNAME password=YOUR_PASSWORD dbname=postgres port=5432 sslmode=disable"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
