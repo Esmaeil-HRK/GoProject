@@ -8,7 +8,7 @@ This Go project demonstrates a simple authentication service using JWT (JSON Web
 - Password hashing with bcrypt
 - JWT-based authentication
 - Middleware for route protection based on user roles (Admin and User)
-- Admin can view all users
+- Admin can view and modify all users
 - Users can view and modify their own data
 
 ## Prerequisites
